@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 
 interface ControlsProps {
   duration: number;
@@ -6,7 +5,7 @@ interface ControlsProps {
   isLoading?: boolean;
 }
 
-export default function Controls({ duration, onDurationChange, isLoading = false }: ControlsProps) {
+export default function Controls({ duration, onDurationChange }: ControlsProps) {
   return (
     <div className="flex flex-col items-center gap-6">
       {/* Duration Slider */}
