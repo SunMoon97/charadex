@@ -12,7 +12,8 @@ type Industry = 'all' | 'hollywood' | 'bollywood' | 'other';
 
 export default function AppLayout() {
   const [duration, setDuration] = useState(60);
-  const [isRunning, setIsRunning] = useState(true);
+  // start paused by default; user must press Start to begin
+  const [isRunning, setIsRunning] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedIndustry, setSelectedIndustry] = useState<Industry>('all');
   const [movies, setMovies] = useState<Movie[]>(defaultMovies);
@@ -150,8 +151,7 @@ export default function AppLayout() {
       const local = getLocalRandomMovie();
       setCurrentMovie(local);
     } finally {
-      // restart the timer
-      setIsRunning(true);
+      // keep timer paused; user should press Start to begin
       setLoading(false);
     }
   };
@@ -167,7 +167,7 @@ export default function AppLayout() {
         <Header />
         
         {/* Industry Filter */}
-        <div className="w-full flex justify-center space-x-4 mb-8">
+  <div className="w-full flex flex-wrap justify-center gap-3 mb-8 px-4">
           {['all', 'hollywood', 'bollywood', 'other'].map((industry) => (
             <button
               key={industry}
@@ -185,19 +185,42 @@ export default function AppLayout() {
 
         {/* Game Area */}
         <motion.div 
-          className="w-full flex flex-col md:flex-row items-center justify-center gap-16 mb-12"
+          className="w-full flex flex-col items-center justify-center gap-8 md:flex-row md:gap-16 mb-8 sm:mb-12 px-2 sm:px-0"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <MovieCard movie={currentMovie} />
-          <Timer 
-            duration={duration}
-            onTimeUp={handleTimeUp}
-            isRunning={isRunning}
-            onStartToggle={(v) => setIsRunning(v)}
-            resetKey={resetKey}
-          />
+          {/* Movie poster */}
+          <div className="order-1">
+            <MovieCard movie={currentMovie} />
+          </div>
+
+          {/* Shuffle button: show below poster on mobile and between poster and timer */}
+          <div className="order-2 mt-4 md:mt-0 md:order-2 flex items-center justify-center">
+            <button
+              onClick={handleShuffle}
+              disabled={loading}
+              className="px-8 py-4 rounded-full text-lg font-bold text-white
+                   bg-gradient-to-r from-purple-600 to-pink-600
+                   hover:from-purple-500 hover:to-pink-500
+                   shadow-lg shadow-purple-500/20 hover:shadow-xl
+                   hover:shadow-purple-500/30 transition-all duration-300
+                   disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? '⏳ Loading...' : '🎬 Shuffle Movie'}
+            </button>
+          </div>
+
+          {/* Timer */}
+          <div className="order-3 mt-6 md:mt-0">
+            <Timer 
+              duration={duration}
+              onTimeUp={handleTimeUp}
+              isRunning={isRunning}
+              onStartToggle={(v) => setIsRunning(v)}
+              resetKey={resetKey}
+            />
+          </div>
         </motion.div>
         
         {/* Controls Section */}
@@ -209,10 +232,15 @@ export default function AppLayout() {
           <Controls
             duration={duration}
             onDurationChange={setDuration}
-            onShuffle={handleShuffle}
             isLoading={loading}
           />
         </motion.div>
+      </div>
+      {/* Footer */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 pb-6">
+        <div className="w-full text-center mt-6">
+          <small className="text-xs text-gray-400">Made with ❤️ for Auction Charcha</small>
+        </div>
       </div>
     </div>
   );
